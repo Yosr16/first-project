@@ -1,20 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ref, onValue } from 'firebase/database';
 import StartFirebase from '../firebaseConfig/index';
 import { Table } from 'react-bootstrap';
 
+
 const db = StartFirebase();
 
-export class RealtimeData extends React.Component { // Corrected here
-    constructor( ) {
-        console.log("test")
-        super();
-        this.state = {
-            tableData: []
-        }
-    }
+const RealtimeData = () => {
+    const [tableData, setTableData] = useState([]);
+
    
-    componentDidMount() {
+    useEffect(() => {
         const dbRef = ref(db, "userData");
         onValue(dbRef, (snapshot) => {
             let records = [];
@@ -22,12 +18,12 @@ export class RealtimeData extends React.Component { // Corrected here
                 let keyName = childSnapshot.key;
                 let data = childSnapshot.val();
                 records.push({ "Key ": keyName, "data": data });
-            })
-            this.setState({ tableData: records });
+            });
+            setTableData( records );
         });
-    }
+    },[]);
 
-    render() {
+   
         return (
             <Table>
                 <thead>
@@ -40,8 +36,8 @@ export class RealtimeData extends React.Component { // Corrected here
                     </tr>
                 </thead>
                 <tbody>
-                    {this.state.tableData.map((rowdata, index) => (
-                        <tr key={index}> {/* Added key attribute */}
+                    {tableData.map((rowdata, index) => (
+                        <tr key={index}> 
                             <td>{index}</td>
                            
                             <td>{rowdata.data.Name}</td>
@@ -52,6 +48,7 @@ export class RealtimeData extends React.Component { // Corrected here
                     ))}
                 </tbody>
             </Table>
-        )
-    }
-}
+        );
+ }
+
+export default RealtimeData;
