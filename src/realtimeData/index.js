@@ -101,8 +101,8 @@ const RealtimeData = () => {
                 </thead>
                 <tbody>
                     {tableData.map((rowdata, index) => (
-                        <tr key={index}> 
-                            <td>{index}</td>
+                        <tr > 
+                            <th scope="row">{index+1}</th>
                            
                             <td>{rowdata.data.Name}</td>
                             <td>{rowdata.data.Email}</td>
