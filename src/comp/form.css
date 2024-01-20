@@ -1,9 +1,14 @@
+
 *
 {
+    
     margin:0;
     padding: 0;
     font-family: sans-serif;
     box-sizing: border-box;
+    
+    
+   
 }
 body {
     display: flex;
@@ -11,12 +16,24 @@ body {
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
+    
+    
+    
+ 
 }
 
 .form {
     padding: 20px 30px;
     background-color: #f4f4f4;
     border-radius: 5px;
+    border-radius: 20px;
+    background-color: black;
+    box-shadow: 0 0 50px #0cc0df;
+    padding: 40px;
+    overflow: hidden;
+    
+
+
 }
 
 .form .container {
@@ -26,6 +43,8 @@ body {
 .form .container form {
     display: flex;
     flex-direction: column;
+    
+    
 }
 
 .form .container form input {
@@ -34,9 +53,9 @@ body {
     width: 300px;
     border: none;
     outline: none;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid rgb(255, 255, 255);
     background: none;
-    color: #0d0d0d;
+    color:rgb(255, 255, 255);
     resize: none;
 }
 
@@ -53,5 +72,6 @@ body {
     border: none;
     outline: none;
     background: #0cc0df;
+    border-radius: 20px;
 }
 
