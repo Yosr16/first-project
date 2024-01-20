@@ -7,7 +7,8 @@ const Form = ({ toggleTable }) => {
         Name: '',
         Email: '',
         Number: '',
-        cin: ''
+        cin: '',
+        Status: ''
     });
 
     const data = (e) => {
@@ -19,7 +20,7 @@ const Form = ({ toggleTable }) => {
     const getdata = async (e) => {
         e.preventDefault();
 
-        if (!user.Name || !user.Email || !user.Number || !user.cin) {
+        if (!user.Name || !user.Email || !user.Number || !user.cin || !user.Status) {
             alert("Veuillez remplir tous les champs.");
             return;
         }
@@ -33,7 +34,8 @@ const Form = ({ toggleTable }) => {
                 Name: user.Name,
                 Email: user.Email,
                 Number: user.Number,
-                cin: user.cin
+                cin: user.cin,
+                Status: user.Status 
             })
         };
 
@@ -49,7 +51,8 @@ const Form = ({ toggleTable }) => {
             Name: '',
             Email: '',
             Number: '',
-            cin: ''
+            cin: '',
+            Status: '' 
         });
 
         toggleTable();
@@ -68,6 +71,7 @@ const Form = ({ toggleTable }) => {
                         <input type='email' name='Email' placeholder='Email' value={user.Email} autoComplete='off' required onChange={data}></input>
                         <input type='text' name='Number' placeholder='Phone Number' value={user.Number} autoComplete='off' required onChange={data}></input>
                         <input type='text' name='cin' placeholder='cin' value={user.cin} autoComplete='off' required onChange={data}></input>
+                        <input type='text' name='Status' placeholder='Status (active/inactive)' value={user.Status} autoComplete='off' required onChange={data}></input>
                         <div className="buttons">
                             <button onClick={getdata}>submit</button>
                             <button type="button" onClick={toggleTable}>afficher</button>
