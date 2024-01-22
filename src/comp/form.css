@@ -6,20 +6,16 @@
     padding: 0;
     font-family: sans-serif;
     box-sizing: border-box;
-    
-    
    
 }
+
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
-    
-    
-    
- 
+    background-color: rgb(255, 255, 255);
 }
 
 .form {
@@ -31,8 +27,6 @@ body {
     box-shadow: 0 0 50px #0cc0df;
     padding: 40px;
     overflow: hidden;
-    
-
 
 }
 

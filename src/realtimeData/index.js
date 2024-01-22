@@ -69,37 +69,7 @@ const RealtimeData = () => {
         setValue('');
     };
 
-    const handleFilterStatus = () => {
-        const dbRef = ref(db, "userData");
-
-        if (statusFilter === '') {
-            onValue(dbRef, (snapshot) => {
-                let records = [];
-                snapshot.forEach(childSnapshot => {
-                    let keyName = childSnapshot.key;
-                    let data = childSnapshot.val();
-                    records.push({ "Key ": keyName, "data": data });
-                });
-
-                setTableData(records);
-            });
-        } else {
-            // Filter by status
-            const statusQuery = query(dbRef, orderByChild("Status"), equalTo(statusFilter));
-
-            onValue(statusQuery, (snapshot) => {
-                let records = [];
-                snapshot.forEach(childSnapshot => {
-                    let keyName = childSnapshot.key;
-                    let data = childSnapshot.val();
-                    records.push({ "Key ": keyName, "data": data });
-                });
-
-                setTableData(records);
-            });
-        }
-    };
-
+    
     const handleSort = (field) => {
         const dbRef = ref(db, "userData");
         const sortedQuery = query(dbRef, orderByChild(field));
@@ -116,6 +86,23 @@ const RealtimeData = () => {
         });
 
         setSortValue(field);
+    };
+    const handleFilterStatus = () => {
+        const dbRef = ref(db, "userData");
+
+        onValue(dbRef, (snapshot) => {
+            let records = [];
+            snapshot.forEach(childSnapshot => {
+                let keyName = childSnapshot.key;
+                let data = childSnapshot.val();
+
+                if (statusFilter === 'All' || data.Status === statusFilter) {
+                    records.push({ "Key ": keyName, "data": data });
+                }
+            });
+
+            setTableData(records);
+        });
     };
 
     useEffect(() => {
@@ -142,6 +129,7 @@ const RealtimeData = () => {
     ];
 
     return (
+       
         <MDBContainer>
             <form
                 style={{
@@ -187,15 +175,24 @@ const RealtimeData = () => {
                     </select>
                 </MDBCol>
                 <MDBCol size="4">
-                    <h5>Filter By Status: </h5>
-                    <MDBBtnGroup>
-                        <MDBBtn color="success" onClick={() => handleFilterStatus("active")}>
-                            active
-                        </MDBBtn>
-                        <MDBBtn color="danger" style={{ marginLeft: "2px" }} onClick={() => handleFilterStatus("inactive")}>inactive</MDBBtn>
-                    </MDBBtnGroup>
-                </MDBCol>
-            </MDBRow>
+                <div className="d-flex align-items-center" >
+        <h11 className="me-2">Filtrage: </h11>
+        <select
+            style={{ width: "100%", borderRadius: "2px", height: "35px" }}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            value={statusFilter}>
+            <option value="All">All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+        <MDBBtn className="mx-2" color="info" onClick={handleFilterStatus} >
+            Filter
+        </MDBBtn>
+    </div>
+    </MDBCol>
+               
+    </MDBRow>
+            
 
             <MDBPagination className="mb-5">
                 <MDBPaginationItem disabled={currentPage === 1}>
@@ -213,6 +210,7 @@ const RealtimeData = () => {
                 </MDBPaginationItem>
             </MDBPagination>
         </MDBContainer>
+        
     );
 };
 

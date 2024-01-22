@@ -63,8 +63,9 @@ const Form = ({ toggleTable }) => {
     };
 
     return (
+        
         <>
-            <div className='form'>
+         <div className='form'>
                 <div className='container'>
                     <form method='POST'>
                     <input type='text' name='Name' placeholder='Your Name' value={user.Name} autoComplete='off' required onChange={data}></input>
@@ -80,8 +81,11 @@ const Form = ({ toggleTable }) => {
                     </form>
                 </div>
             </div>
+           
             <CheckUserForm />
+            
         </>
+    
     );
 };
 
