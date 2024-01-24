@@ -57,8 +57,8 @@ body {
 
 .form .container form .buttons {
     display: flex;
-    justify-content: right; /* Align buttons at the ends */
-    margin-top: 20px; /* Add margin to separate from input fields */
+    justify-content: right; 
+    margin-top: 20px;
 }
 
 .form .container form button {
