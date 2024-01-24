@@ -1,200 +1,225 @@
 import React, { useEffect, useState } from 'react';
-import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import { ref, onValue, query, orderByChild } from 'firebase/database';
 import StartFirebase from '../firebaseConfig/index';
-import { MDBContainer, MDBBtn, MDBBtnGroup, MDBRow, MDBCol, MDBPagination, MDBPaginationLink, MDBPaginationItem } from 'mdb-react-ui-kit';
+import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBBtnGroup, MDBPagination, MDBPaginationLink, MDBPaginationItem, MDBSpinner } from 'mdb-react-ui-kit';
 import DataTable from 'react-data-table-component';
-
+import Profile from '../profile.js';
 const db = StartFirebase();
 const sortOptions = ["Name", "Email", "Number"];
 
-const RealtimeData = () => {
-    const [tableData, setTableData] = useState([]);
-    const [value, setValue] = useState('');
-    const [sortValue, setSortValue] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+const RealtimeData = ({ toggleTable }) => {
+  const [tableData, setTableData] = useState([]);
+  const [value, setValue] = useState('');
+  const [sortValue, setSortValue] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const [isLoading, setIsLoading] = useState(true);
 
-    const sliceTableData = () => {
-        const indexOfLastItem = currentPage * itemsPerPage;
-        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-        return tableData.slice(indexOfFirstItem, indexOfLastItem);
-    };
+  const sliceTableData = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return tableData.slice(indexOfFirstItem, indexOfLastItem);
+  };
 
-    const handleNextPage = () => {
-        if (currentPage < Math.ceil(tableData.length / itemsPerPage)) {
-            setCurrentPage(currentPage + 1);
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(tableData.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleSearch = (value) => {
+    const dbRef = ref(db, "userData");
+    const orderedQuery = query(dbRef, orderByChild("Name"));
+    const searchValue = value.toLowerCase();
+
+    onValue(orderedQuery, (snapshot) => {
+      let records = [];
+      snapshot.forEach(childSnapshot => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+        const cin = data.cin + '';
+        console.log(searchValue, cin);
+        if (cin.toLowerCase().includes(searchValue) || data.Name.toLowerCase().includes(searchValue)) {
+          records.push({ "Key ": keyName, "data": data });
         }
-    };
+      });
 
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
+      setTableData(records);
+    });
+  };
+
+  const handleReset = () => {
+    const dbRef = ref(db, "userData");
+
+    onValue(dbRef, (snapshot) => {
+      let records = [];
+      snapshot.forEach(childSnapshot => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+        records.push({ "Key ": keyName, "data": data });
+      });
+      setTableData(records);
+    });
+    setValue('');
+  };
+
+
+  const handleSort = (field) => {
+    const dbRef = ref(db, "userData");
+    const sortedQuery = query(dbRef, orderByChild(field));
+
+    onValue(sortedQuery, (snapshot) => {
+      let records = [];
+      snapshot.forEach(childSnapshot => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+        records.push({ "Key ": keyName, "data": data });
+      });
+
+      setTableData(records);
+    });
+
+    setSortValue(field);
+  };
+
+  const handleFilterStatus = (statusFilter) => {
+    const dbRef = ref(db, "userData");
+    onValue(dbRef, (snapshot) => {
+      let records = [];
+      snapshot.forEach(childSnapshot => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+
+        if (statusFilter === 'All' || data.Status === statusFilter) {
+          records.push({ "Key ": keyName, "data": data });
         }
-    };
+      });
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        const dbRef = ref(db, "userData");
-        const orderedQuery = query(dbRef, orderByChild("Name"));
-        const searchValue = value.toLowerCase();
+      setTableData(records);
+    });
+  };
 
-        onValue(orderedQuery, (snapshot) => {
-            let records = [];
-            snapshot.forEach(childSnapshot => {
-                let keyName = childSnapshot.key;
-                let data = childSnapshot.val();
+  useEffect(() => {
+    setIsLoading(true);
 
-                if (data.Name.toLowerCase().includes(searchValue)) {
-                    records.push({ "Key ": keyName, "data": data });
-                }
-            });
+    const dbRef = ref(db, "userData");
+    onValue(dbRef, (snapshot) => {
+      let records = [];
+      snapshot.forEach(childSnapshot => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+        records.push({ "Key ": keyName, "data": data });
+      });
+      setIsLoading(false);
+      setTableData(records);
+    });
+  }, []);
 
-            setTableData(records);
-        });
-    };
+  const columns = [
+    { name: 'id', selector: (row, index) => index + 1, sortable: false },
+    { name: 'Name', selector: (row) => row.data.Name },
+    { name: 'Email', selector: (row) => row.data.Email },
+    { name: 'Number', selector: (row) => row.data.Number },
+    { name: 'cin', selector: (row) => row.data.cin },
+    { name: 'Status', selector: (row) => row.data.Status },
+  ];
 
-    const handleReset = () => {
-        const dbRef = ref(db, "userData");
-
-        onValue(dbRef, (snapshot) => {
-            let records = [];
-            snapshot.forEach(childSnapshot => {
-                let keyName = childSnapshot.key;
-                let data = childSnapshot.val();
-                records.push({ "Key ": keyName, "data": data, });
-            });
-            setTableData(records);
-        });
-        setValue('');
-    };
-
-    
-    const handleSort = (field) => {
-        const dbRef = ref(db, "userData");
-        const sortedQuery = query(dbRef, orderByChild(field));
-
-        onValue(sortedQuery, (snapshot) => {
-            let records = [];
-            snapshot.forEach(childSnapshot => {
-                let keyName = childSnapshot.key;
-                let data = childSnapshot.val();
-                records.push({ "Key ": keyName, "data": data });
-            });
-
-            setTableData(records);
-        });
-
-        setSortValue(field);
-    };
-    const handleFilterStatus = () => {
-        const dbRef = ref(db, "userData");
-
-        onValue(dbRef, (snapshot) => {
-            let records = [];
-            snapshot.forEach(childSnapshot => {
-                let keyName = childSnapshot.key;
-                let data = childSnapshot.val();
-
-                if (statusFilter === 'All' || data.Status === statusFilter) {
-                    records.push({ "Key ": keyName, "data": data });
-                }
-            });
-
-            setTableData(records);
-        });
-    };
-
-    useEffect(() => {
-        const dbRef = ref(db, "userData");
-        onValue(dbRef, (snapshot) => {
-            let records = [];
-            snapshot.forEach(childSnapshot => {
-                let keyName = childSnapshot.key;
-                let data = childSnapshot.val();
-                records.push({ "Key ": keyName, "data": data });
-            });
-
-            setTableData(records);
-        });
-    }, []);
-
-    const columns = [
-        { name: 'id', selector: (row,index) => index + 1, sortable: false },
-        { name: 'Name', selector: (row) => row.data.Name },
-        { name: 'Email', selector: (row) => row.data.Email },
-        { name: 'Number', selector: (row) => row.data.Number },
-        { name: 'cin', selector: (row) => row.data.cin },
-        { name: 'Status', selector: (row) => row.data.Status },
-    ];
-
-    return (
-       
-        <MDBContainer>
-            <form
+  return (
+    <MDBContainer fluid className="my-5"style={{width: "100%" , marginRight: 700,marginTop:10}}>
+      <MDBRow className="mb-4">
+        <MDBCol size="12">
+          <div class="card" style={{padding:"5px"}} >
+            <h4 class="card-header text-center font-weight-bold text-uppercase py-2">
+            liste noire
+            </h4>
+            
+            </div>
+          
+        </MDBCol>
+        <MDBCol>
+          <MDBRow>
+            <MDBCol size="3">
+              <form
                 style={{
-                    margin: "auto",
-                    padding: "15px",
-                    maxwidth: "400px",
-                    alignContent: "center"
+                  maxWidth: "400px",
+                  zIndex: 1000,
+                  margin: "auto"
                 }}
-                className="d-flex input-group w-auto"
-                onSubmit={handleSearch}>
-
-                <input type="text" className="form-control" placeholder="Search Name" value={value}
-                    onChange={(e) => setValue(e.target.value)} />
-                <MDBBtnGroup>
-
-                    <MDBBtn type="submit" color="dark">Search</MDBBtn>
-
-                    <MDBBtn className="mx-2" color="info" onClick={() => handleReset()}>
-                        Reset
-                    </MDBBtn>
-
-                </MDBBtnGroup>
-
-            </form>
-
-            <DataTable
-                columns={columns}
-                data={sliceTableData()}
-                
-            />
-
-            <MDBRow>
-                <MDBCol size="8">
-                    <h5>Sort By: </h5>
-                    <select
-                        style={{ width: "50%", borderRadius: "2px", height: "35px" }}
-                        onChange={(e) => handleSort(e.target.value)}
-                        value={sortValue}>
-                        <option>Please Select Value</option>
-                        {sortOptions.map((item, index) => (
-                            <option value={item} key={index}>{item}</option>
-                        ))}
-                    </select>
-                </MDBCol>
-                <MDBCol size="4">
+              >
+                <input type="text" className="form-control" placeholder="Search Name" onChange={(e) => handleSearch(e.target.value)} />
+              </form>
+            </MDBCol>
+            <MDBCol size="3">
+              <h11 className="me-2">Sort by </h11>
+              <select
+                style={{ width: "50%", borderRadius: "2px", height: "35px" }}
+                onChange={(e) => handleSort(e.target.value)}
+                value={sortValue}
+              >
+                <option>Please Select Value</option>
+                {sortOptions.map((item, index) => (
+                  <option value={item} key={index}>{item}</option>
+                ))}
+              </select>
+            </MDBCol>
+            <MDBCol size="3">
                 <div className="d-flex align-items-center" >
         <h11 className="me-2">Filtrage: </h11>
         <select
-            style={{ width: "100%", borderRadius: "2px", height: "35px" }}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ width: "50%", borderRadius: "2px", height: "35px" }}
+            onChange={(e) => {
+                handleFilterStatus(e.target.value);
+            setStatusFilter(e.target.value);}}
             value={statusFilter}>
             <option value="All">All</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
         </select>
-        <MDBBtn className="mx-2" color="info" onClick={handleFilterStatus} >
+        {/* <MDBBtn className="mx-2" color="info" onClick={handleFilterStatus} >
             Filter
-        </MDBBtn>
+        </MDBBtn> */}
     </div>
     </MDBCol>
-               
-    </MDBRow>
-            
+            <MDBCol size="3">
+            <Profile toggleModal={toggleTable} />
+            </MDBCol>
 
-            <MDBPagination className="mb-5">
+            
+           
+          </MDBRow>
+        </MDBCol>
+      </MDBRow>
+      {isLoading ? (
+        <MDBSpinner color="primary" className="mx-auto" />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={sliceTableData()}
+          striped
+          responsive
+          noHeader
+          customStyles={{
+            headRow: {
+              style: {
+                fontSize: '1.2em',
+              },
+            },
+            rows: {
+              style: {
+                fontSize: '1em',
+              },
+            },
+          }}
+        />
+      )}
+       <MDBPagination className="mb-5 d-flex justify-content-end">
                 <MDBPaginationItem disabled={currentPage === 1}>
                     <MDBPaginationLink onClick={handlePrevPage}>Previous</MDBPaginationLink>
                 </MDBPaginationItem>
@@ -210,8 +235,7 @@ const RealtimeData = () => {
                 </MDBPaginationItem>
             </MDBPagination>
         </MDBContainer>
-        
-    );
+  );
 };
 
 export default RealtimeData;
