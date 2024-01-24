@@ -3,7 +3,7 @@ import { ref, onValue, query, orderByChild } from 'firebase/database';
 import StartFirebase from '../firebaseConfig/index';
 import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBBtnGroup, MDBPagination, MDBPaginationLink, MDBPaginationItem, MDBSpinner } from 'mdb-react-ui-kit';
 import DataTable from 'react-data-table-component';
-import Profile from '../profile.js';
+import Profile from '../profile/profile.js';
 const db = StartFirebase();
 const sortOptions = ["Name", "Email", "Number"];
 
