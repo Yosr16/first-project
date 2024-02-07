@@ -15,7 +15,7 @@ function Profile() {
 
     return (
         <div>
-            <Button className='btn mt-3' style={{ backgroundColor: "#0b3629", color: "white", maxWidth:70,maxHeight:30,padding:0 }} onClick={toggleModal}>
+            <Button className='btn mt-3' style={{ backgroundColor: "#a7bcff", color: "white", maxWidth:70,maxHeight:30,padding:0 }} onClick={toggleModal}>
                 add
             </Button>
 
@@ -24,8 +24,8 @@ function Profile() {
                 isOpen={modal}
                 toggle={toggleModal}
             >
-        <ModalHeader toggle={toggleModal}  style={{ backgroundColor: '#31b0c9', color: '#ffffff' }}>
-           <h4 class=" w-100 font-weight-bold">Add users</h4>
+        <ModalHeader toggle={toggleModal}  style={{ backgroundColor: '#a7bcff', color: '#ffffff' }}>
+           <h4 class=" w-1000 font-weight-bold ">Add users</h4>
          </ModalHeader>
 
 
